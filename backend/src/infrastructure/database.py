@@ -12,7 +12,7 @@ DATABASE = "campus"
 # Note the change to +asyncpg
 SQLALCHEMY_DATABASE_URL = os.getenv(
     "DATABASE_URL", 
-    f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
+    f"postgresql+asyncpg://postgresql:[YOUR_PASSWORD]@db.anbzbykmawhhaoqdssgy.supabase.co:5432/postgres"
 )
 
 # Create Async Engine
