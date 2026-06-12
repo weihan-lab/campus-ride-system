@@ -8,10 +8,7 @@ from api.routers import student, driver, bus, taxi, bicycle
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # --- Educational Logic: Ensure tables exist on startup ---
-    # In Distributed Systems, schema consistency is key before node entry.
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    
     yield
 
 app = FastAPI(
@@ -22,10 +19,10 @@ app = FastAPI(
 
 # Add Middlewares
 app.add_middleware(LoggingMiddleware)
-app.add_middleware(SecurityMiddleware)
+#app.add_middleware(SecurityMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjusted for development
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Adjusted for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

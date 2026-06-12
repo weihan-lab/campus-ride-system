@@ -3,18 +3,19 @@ from sqlalchemy.ext.declarative import declarative_base
 import os
 
 # Connection string using asyncpg driver
-HOST = "localhost"
-PORT = "5432"
-USER = "postgres"
-PASSWORD = "123"
-DATABASE = "campus"
+# HOST = "localhost"
+# PORT = "5432"
+# USER = "postgres"
+# PASSWORD = "123"
+# DATABASE = "campus"
 
-# Note the change to +asyncpg
-SQLALCHEMY_DATABASE_URL = os.getenv(
-    "DATABASE_URL", 
-    f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
-)
+# # Note the change to +asyncpg
+# SQLALCHEMY_DATABASE_URL = os.getenv(
+#     "DATABASE_URL", 
+#     f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
+# )
 
+SQLALCHEMY_DATABASE_URL = 'postgresql+asyncpg://postgres:Campusride%402626@db:5432/postgres'
 # Create Async Engine
 engine = create_async_engine(
     SQLALCHEMY_DATABASE_URL,
