@@ -27,3 +27,18 @@ This directory contains all the required visual evidence for the system deployme
 
 ![Application Accessible](<3.3-application-accessible.png>)
 *3.3: Application Accessible at http://127.0.0.1:3000 while Running in Containers*
+
+![Kubectl Get Pods](<4.1-kubectl-get-pods-all-pods-status-running.png>)
+*4.1: Kubectl Get Pods - All Pods STATUS = Running*
+
+![Kubectl Get Services](<4.2-kubectl-get-services.png>)
+*4.2: Kubectl Get Services - Backend and Frontend ClusterIP Services*
+
+![Kubectl Get Hpa](<4.3-kubectl-get-hpa.png>)
+*4.3: Kubectl Get Hpa -HPA Configured with MIN/MAX/CPU Target*
+
+![Kubectl Describe Deployment Campus-backend](<4.4- kubectl-describe-deployment-campus-backend.png>)
+*4.4: Kubectl Describe Deployment Campus-backend (Showing Replicas, Probes, env vars)
+
+![App Accessible Via Port-forward on localhost:3000](<4.5-app-accessible-via-port-forward-on-localhost.png>)
+*4.5: App Accessible Via Port-forward On localhost:3000*
