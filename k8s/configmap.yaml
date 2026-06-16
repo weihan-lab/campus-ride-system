@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: campus-config
+  namespace: default
+data:
+  BACKEND_HOST: "0.0.0.0"
+  BACKEND_PORT: "8000"
+  NODE_ENV: "development"

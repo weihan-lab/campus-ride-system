@@ -1,0 +1,53 @@
+## Python / FastAPI backend
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache / artifacts
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+
+# Logs
+*.log
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+
+# Type check / lint caches
+.mypy_cache/
+.pyre/
+.ruff_cache/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Build / packaging
+build/
+dist/
+*.whl
+
+# Runtime files
+*.pid
+*.sqlite3
