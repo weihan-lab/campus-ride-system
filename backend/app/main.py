@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.infrastructure.database import engine, Base
-from .logging import LoggingMiddleware
+from .logger import LoggingMiddleware
 from .security import SecurityMiddleware
 from api.routers import student, driver, bus, taxi, bicycle
 
