@@ -23,11 +23,11 @@ app.add_middleware(LoggingMiddleware)
 #app.add_middleware(SecurityMiddleware)
 
 app.add_middleware(
-    CORSMiddleware,
+    CORSMiddleware,  
     allow_origins=[
         "http://localhost:3000", 
-        "http://127.0.0.1:3000",
-    ]    
+        "http://127.0.0.1:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
