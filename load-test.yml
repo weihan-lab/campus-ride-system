@@ -1,0 +1,14 @@
+config:
+  target: "https://campus-ride-backend.up.railway.app"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: "Phase 1: Low Load"
+    - duration: 120
+      arrivalRate: 50
+      name: "Phase 2: High Load (Stress Test)"
+scenarios:
+  - name: "Health check query"
+    flow:
+      - get:
+          url: "/health"
