@@ -488,3 +488,54 @@ ANSWER: The Kubernetes load balancer uses a Round-Robin algorithm to distribute 
 
 ```
 
+---
+# 4. Environment Variables Reference Table 
+To run this project locally or deploy it to the cloud, need to configure the following variables.
+
+
+| Variable Name | Service | Description | Where to get |
+|------|---------|---------|-------------------|
+| NEXT_PUBLIC_SUPABASE_URL | Frontend | The API URL for connecting to the Supabase database. | Supabase Dashboard > Project Settings > API |
+| NEXT_PUBLIC_SUPABASE_ANON_KEY | Frontend | The anonymous key for client-side Supabase access. |Supabase Dashboard > Project Settings > API|
+| NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY | Frontend | The publishable key for public database operations. | Supabase Dashboard > Project Settings > API |
+| NEXT_PUBLIC_API_URL | Frontend | The base URL for the backend FastAPI service.| Railway Backend Service > Settings > Public Networking |
+| DATABASE_URL | Backend | Connection string for the PostgreSQL database (Asyncpg). | Supabase Dashboard > Project Settings > Database |
+|PORT | Backend | The port number the backend application listens on.| Automatically assigned by Railway (Default: 8080) |
+
+
+
+---
+# 7. Live Deployment & Endpoints
+
+
+The system is fully deployed on Railway cloud infrastucture.
+
+   -Frontend (User Interface): https://campus-ride-frontend.up.railway.app
+
+   -Backend APU Documentation (Swagger UI): https://campus-ride-backend.up.railway.app/docs
+
+Key API Endpoints
+
+    -POST /api/v1/students/ - Register a new student account.
+
+    -GET /api/v1/drivers/ - Retrieve a list of available drivers.
+
+    -POST /api/v1/rides/ - Create a new ride request.
+---
+
+# 8.Troubleshooting
+During the development and cloud deployment phases, we encountered and resolved several technical challenges:
+
+| Issue | Root Cause | Solution| 
+|------|---------|---------|
+| Frontend fails to read Supabase keys in production (Missing .env.local) | Next.js requires NEXT_PUBLIC_ variables at build-time. Since .env.local is git-ignored, Docker builds on Railway fail to access these keys if they are only provided at runtime. | We updated the frontend/Dockerfile to include ARG and ENV instructions (e.g., ARG NEXT_PUBLIC_API_URL) right before the RUN npm run build command, allowing Docker to fetch variables from Railway during the build process. | 
+| Backend Deployment Error: "Application failed to respond" on Railway| The FastAPI server was defaulting to localhost (127.0.0.1), making it inaccessible from the external Railway network. | We modified the Railway custom start command to bind the host to 0.0.0.0 globally: python -m uvicorn app.main:app --host 0.0.0.0 --port 8080. | 
+| Frontend blocked by CORS policy when fetching API | The frontend and backend are hosted on different domains. The backend's security configuration rejected incoming cross-origin HTTP requests from the frontend URL. | We updated the allow_origins array in the backend's main.py CORS middleware to explicitly include the live frontend domain: https://campus-ride-frontend.up.railway.app. | 
+
+---
+# 9. Team Member Contributions
+|Name | Matric No. | Role & Contributions| 
+|------|---------|---------|
+| TAN WEI HAN | 305630 |  Lead Developer / Cloud Architect: Setup Railway deployments, configured Dockerfiles for CI/CD, resolved CORS and build-time variable issues, and implemented core API routes. | 
+| YAP YEW JOE | 306128 |  Frontend Developer: Designed the Next.js UI components, integrated Supabase authentication, and connected frontend forms to backend REST APIs.|
+| KHO ZHI KUAN | 304724 | Database & Networking: Configured Supabase PostgreSQL schema, managed Kubernetes manifests, and performed network traffic analysis using Wireshark.|
