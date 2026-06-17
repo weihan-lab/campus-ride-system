@@ -313,3 +313,178 @@ Answer: A ConfigMap stores non-confidential data in plain text (e.g., NODE_ENV, 
 Q14: The HPA scales from 2→10 pods based on CPU. Relate this to the distributed systems concept of Horizontal Scaling and explain why it is preferable to Vertical Scaling for stateless services.
 
 Answer: HPA scaling from 2 to 10 pods is Horizontal Scaling (Scaling Out)—adding more machines/nodes to the cluster to handle load. Vertical Scaling (Scaling Up) means adding more CPU/RAM to a single machine. For stateless services (like our FastAPI backend), Horizontal Scaling is far superior because it eliminates single points of failure, allows for mathematically infinite scalability, and is more cost-effective (using many cheaper, smaller pods rather than renting a massive, expensive supercomputer).
+
+```
+## Part 5: Railway Cloud Deployment
+
+Evidence:
+*Screenshots 5.1:Railway Dashboard Showing Both Services Deployed
+![railway dashboard](screenshots/5.1-railway-dashboard-showing-both-services-deployed.png)
+
+
+*Screenshots 5.2:Railway deployment logs (clean, no errors)
+![railway deployment logs](screenshots/5.2.1-railway-deployment-logs-frontend.png)
+
+*Screenshots 5.2:Railway deployment logs (clean, no errors)
+![railway deployment logs](screenshots/5.2.2-railway-deployment-logs-backend.png)
+
+*Screenshots 5.3：Live app accessible at https://campus-ride-frontend.up.railway.app (URL in browser)
+![live app accesible](screenshots/5.3-live-app-accessible-at-railway-url-browser.png)
+
+*Screenshots 5.4：Successful login/signup on live Railway deployment
+![successful login/signup](screenshots/5.4-successful-signup-on-live-railway-deployment.png)
+
+
+
+Live Deployment URL:
+Frontend (User Interface):  https://campus-ride-frontend.up.railway.app/
+(Please use this link to access the EcoRide web application and test the login/signup features.)
+
+Backend (API Documentation): https://campus-ride-backend.up.railway.app/docs
+(The backend API is documented and testable via Swagger UI at the /docs endpoint.)
+
+
+```
+DS Concepts Answers (Part 5)
+Q15: Railway is a PaaS (Platform as a Service). Compare PaaS vs IaaS vs SaaS. Where does Supabase fit?
+ANSWER:  IaaS (Infrastructure as a Service): Provider manages servers, storage, and networking. You manage OS, runtime, and data.PaaS (Platform as a Service): Provider manages infrastructure, OS, and runtime. You manage only the application code and data (e.g., Railway).SaaS (Software as a Service): Provider manages everything. You use the final application. Supabase: Backend as a Service (BaaS), a specialized PaaS that provides pre-built backend infrastructure (database, auth, API) so you only build the frontend.
+
+
+Q16: Why does CORS exist? Explain what happens without the Railway domain in allow_origins and which OSI layer CORS operates at.
+ANSWER: A browser security feature to prevent malicious websites from making unauthorized requests to other domains using a user's active session. Missing Railway domain in allow_origins: The browser's preflight (OPTIONS) request fails. The browser blocks the frontend from reading the backend's response, triggering a CORS error.
+
+Q17: Railway automatically provisions HTTPS. Explain the TLS handshake and why plain HTTP is insufficient for distributed auth systems.
+ANSWER: It transmits data in plaintext. Passwords and auth tokens can be easily intercepted via packet sniffing.
+TLS Handshake:
+Client Hello: Browser sends supported encryption algorithms.
+Server Hello & Certificate: Server responds with chosen algorithm and its public key certificate.
+Verification: Browser verifies the certificate's authenticity.
+Key Exchange: Browser encrypts a "premaster secret" using the server's public key and sends it.
+Session Keys: Both generate identical symmetric session keys from the secret.
+Encrypted Connection: All subsequent HTTP traffic is encrypted using these symmetric keys.
+```
+## Part 6: Network Analysis with Wireshark
+
+Evidence:
+*Screenshots 6.1: TCP 3-way handshake — 3 packets with SYN/SYN-ACK/ACK flags visible
+![TCP 3-Way](screenshots/6.1-TCP-3way-handshake.png)
+
+*Screenshots 6.2 HTTP GET — ALL layers expanded (Frame/Ethernet/IP/TCP/HTTP) with annotations
+![http get](screenshots/6.2.1-http-get.png)
+
+*Screenshots 6.2 HTTP GET — ALL layers expanded (Frame/Ethernet/IP/TCP/HTTP) with annotations
+![http get](screenshots/6.2.2-http-get.png)
+
+*Screenshots 6.2 HTTP GET — ALL layers expanded (Frame/Ethernet/IP/TCP/HTTP) with annotations
+![http get](screenshots/6.2.3-http-get.png)
+
+*Screenshots 6.3: HTTP POST — JSON payload visible in packet
+![http post](screenshots/6.3-http-post-json-payload.png)
+
+*Screenshots 6.4: TCP 4-way close — FIN/ACK sequence
+![tcp 4-way close](screenshots/6.4-TCP-4-way-close.png)
+
+*Screenshots 6.5: Docker container traffic showing 172.18.x.x IPs
+![docker container traffic](screenshots/6.5.1-docker-container-traffic-showing-172.18.0.2.png)
+
+*Screenshots 6.5: Docker container traffic showing 172.18.x.x IPs
+![docker container traffic](screenshots/6.5.2-docker-container-traffic-showing-172.18.0.2.png)
+
+*Screenshots 6.6: TLS/HTTPS Analysis (Railway Production)
+![tls/https](screenshots/6.6-TLS-analysis.png)
+
+```
+Exercise 6.1
+ANSWER: In this exercise, the Wireshark capture clearly shows the first three packets (Packet No. 1, 2, and 3) establishing a connection between the client and the server (127.0.0.1:8000). This occurs at OSI Layer 4 (Transport Layer). I observed the standard TCP 3-way handshake sequence:
+1. Client sends a [SYN] packet to the server.
+2. Server replies with a [SYN, ACK] packet.
+3. Client acknowledges with an [ACK] packet.
+Distributed Systems Concept:
+This illustrates the concept of Reliable Communication. In a distributed system, nodes must guarantee that the communication channel is established and both parties are ready before sending actual application data. The TCP handshake ensures this reliability and synchronization across the network
+
+
+Exercise 6.2
+ANSWER: In this exercise, I captured an HTTP GET request to the /api/v1/students/ endpoint. By expanding the packet details, I observed the data encapsulation process across multiple OSI layers:
+Layer 7 (Application Layer): The HTTP protocol defines the GET method, endpoint path, and headers (like User-Agent and Host).
+Layer 4 (Transport Layer): The TCP protocol shows the Source Port (60309) and Destination Port (8000), managing the end-to-end delivery.
+Layer 3 (Network Layer): The IPv4 protocol shows the Source IP and Destination IP (both 127.0.0.1 for local loopback testing), handling the logical routing.
+Layer 2 (Data Link Layer): Represented by the Null/Loopback frame details.
+Distributed Systems Concept:
+This illustrates the concepts of Encapsulation and Protocol Abstraction. In a distributed cloud-native architecture, developers only need to design the Application Layer (Layer 7 REST API). The underlying OSI layers automatically encapsulate this JSON/HTTP request into packets and route it to the correct microservice or backend container, abstracting the complex networking details away from the application logic.
+
+Exercise 6.3
+ANSWER: In this exercise, the Wireshark capture demonstrates an HTTP POST request carrying data. By examining the packet, I observed the payload at OSI Layer 6 (Presentation Layer). The capture clearly shows the HTTP payload expanded to reveal the JavaScript Object Notation (JSON) data. The raw object {"name":"Ali","matric_id":"S001",...} was successfully serialized and transmitted over the network to the /api/v1/students/ endpoint.
+Distributed Systems Concept:
+This illustrates the concept of Data Serialization and Interoperability. In distributed systems, different components or microservices might be written in different programming languages. They need a universal, standardized format (like JSON) at the Presentation Layer to serialize complex data structures into a stream of bytes for transmission, ensuring that the receiving server can correctly parse and understand the payload.
+
+Exercise 6.4
+ANSWER: In this capture for Exercise 6.4, I observed the connection termination process at OSI Layer 4 (Transport Layer). The Wireshark packet list clearly shows the standard TCP 4-way teardown sequence (Packets 12 to 15). By expanding the TCP protocol details, I verified the presence of the FIN and ACK flags. The sequence occurs as follows:
+1. ​Client initiates termination with a [FIN, ACK].
+2. ​Server acknowledges it with an [ACK].
+3. ​The server sends its own [FIN, ACK] to close its side.
+4. ​Client sends a final [ACK].
+​Distributed Systems Concept:
+This sequence illustrates the concept of Graceful Teardown and Resource Management. In distributed systems, computing nodes and servers have limited resources (such as memory and open ports). A graceful 4-way termination ensures that both the client and the backend server have completely finished transmitting data before safely closing the connection and releasing network resources, preventing memory leaks and orphaned connections.
+
+Exercise 6.5
+ANSWER: During the deployment, I successfully verified the containerized networking by assigning static IP addresses within a shared virtual bridge (172.18.0.0/16 subnet).
+​Technical Limitation Note: As I am running Docker on a Windows/WSL2 environment, internal container-to-container traffic (on port 5432) remains encapsulated within the Linux kernel bridge (docker0), which is not observable from the Windows host network adapters. However, the connectivity was definitively validated via the successful end-to-end routing of the HTTP request to the database execution layer, as evidenced by the specific SQL exceptions returned from the backend.
+​Distributed Systems Concept:
+This illustrates Network Virtualization and Service Discovery. Containers operate within an isolated virtual network where they discover each other via internal DNS rather than hardcoded IPs. This architectural decoupling allows for horizontal scalability, as the network topology remains consistent regardless of the underlying host environment.
+
+Exercise 6.6
+ANSWER: In this exercise, I analyzed the production traffic to the Railway server. At OSI Layer 6/7 (Presentation and Application Layers), the capture demonstrates a successful TLSv1.3 handshake.
+1.​The client sends a Client Hello containing the SNI (campus-ride-system-production-0520.up.railway.app).
+2. ​The server responds with a Server Hello to establish cryptographic keys.
+3. ​Following the handshake, all HTTP traffic is encapsulated as Application Data. The actual JSON payload and HTTP headers are entirely encrypted and invisible to network packet analyzers.
+​Distributed Systems Concept:
+This illustrates the critical concept of Secure Communication and Confidentiality. In distributed systems, especially those using stateless authentication like Supabase JWTs, tokens are transmitted with every request. Without TLS encryption, anyone intercepting the traffic (man-in-the-middle) could easily read the plain HTTP request and steal the JWT to impersonate a user. The TLS handshake establishes a secure, encrypted tunnel, ensuring that sensitive authentication tokens and user data remain strictly confidential over public networks.
+
+```
+
+```
+DS Concept (Part 6)
+Q18: Why does TCP use a 3-way handshake before data exchange? What would happen without it in a distributed system?
+​ANSWER: TCP uses a 3-way handshake (SYN, SYN-ACK, ACK) to ensure both the client and server are ready and to synchronize initial sequence numbers.Without it: In a distributed system, without this synchronization, we would face two main issues:
+​Unreliable State: The client might send data before the server has allocated memory or opened a port, causing packet loss.
+​Ambiguity: Old or delayed packets from a previous connection could be confused with current data. The handshake establishes a "fresh" connection state, ensuring data integrity and delivery order.
+
+​Q19: From your HTTP GET capture, list the exact contents of: (a) Layer 3 header, (b) Layer 4 header, (c) Layer 7 payload.
+​ANSWER: (Based on your Exercise 6.2 capture):
+​(a) Layer 3 (Network Layer) Header: Source IP (127.0.0.1), Destination IP (127.0.0.1), Protocol (TCP/6), and TTL (Time-to-Live).
+​(b) Layer 4 (Transport Layer) Header: Source Port (e.g., 60309), Destination Port (8000), and Sequence/Acknowledgment numbers.
+​(c) Layer 7 (Application Layer) Payload: The HTTP request line (GET /api/v1/students/ HTTP/1.1), the Host header (127.0.0.1:8000), and User-Agent info.
+
+​Q20: In Exercise 6.5, how does the Docker DNS resolver translate 'postgres' to its container IP? Which distributed systems concept is this?
+​ANSWER: Translation: Docker includes an embedded DNS server. When a container (backend) tries to reach a service name (like postgres), the DNS resolver intercepts the request and maps the service name to the specific internal IP address (e.g., 172.18.0.3) currently assigned to that service's container.
+​Distributed Systems Concept: This is Service Discovery. In a distributed environment, containers are ephemeral (they start and stop frequently); Service Discovery allows services to locate each other dynamically without hardcoding IP addresses.
+
+​Q21: In Exercise 6.6, you cannot see the HTTP content in HTTPS packets. Explain what the TLS handshake establishes and why this is essential for the Supabase JWT authentication flow.
+​ANSWER:​ TLS Handshake: It establishes an encrypted, secure tunnel between the client and server. It involves negotiating cryptographic algorithms, verifying the server’s certificate, and generating shared secret keys used to encrypt all subsequent data.
+​Essential for JWT Flow: In a distributed system, a JWT (JSON Web Token) acts as the "identity card" for the user. If this token is sent over plain HTTP, anyone sniffing the network (Man-in-the-Middle) can steal the token and impersonate the user. TLS ensures that the JWT—and the sensitive data inside it—remains encrypted and tamper-proof during transmission, which is non-negotiable for secure authentication.
+
+```
+## Part 7: Load Testing & Horizontal Scaling
+
+Evidence:
+
+*Screenshots 7.1: Artillery test running — showing requests/sec and response times
+![Artillery test running](screenshots/7.1.1-artillery-test-running-showing-requests-sec.png)
+
+*Screenshots 7.2 & 7.3: Railway dashboard CPU graph during the load test (showing spike)  K8s HPA scaling (optional if testing locally with metrics-server)
+
+![railway dashboard ](screenshots/7.2，7.3-railway-dashboard-cpu-graph-during-the%20load-test.png)
+
+```
+DS Concept
+
+Q22: From your Artillery results, record average response time at 10 req/s vs 50 req/s. What does the difference tell you about the system's throughput limits?
+ANSWER: Data: According to the finalized Artillery summary report, the system recorded a baseline mean response time of 268.0 ms (median: 228.2 ms) at 10 req/s during Phase 1. When the load expanded by 500% to 50 req/s in Phase 2, the cumulative mean response time unexpectedly optimized to 209.3 ms (median: 202.4 ms).
+Throughput Limits Analysis: Exactly 6,600 out of 6,600 requests successfully returned HTTP 200 OK with zero failures (vusers.failed: 0). The fact that response times remained entirely stable (and even slightly decreased due to container runtime warming/connection reuse) under peak stress proves that the system's actual throughput limit is far higher than 50 req/s. The asynchronous Uvicorn/FastAPI pipeline handled the concurrent network I/O effortlessly, without encountering any CPU throttling or worker thread starvation.
+
+
+Q23: Railway scales by adding container replicas (horizontal). How does the K8s load balancer distribute requests between replicas? Does the Campus Ride backend need to be stateful or stateless for this to work correctly?
+ANSWER: The Kubernetes load balancer uses a Round-Robin algorithm to distribute sequential incoming Layer 7 HTTP requests evenly among all healthy container replicas.  State Requirement: The backend must be stateless. Because Round-Robin routes consecutive requests from the same user to different replicas, a stateful backend would lose session data. Being stateless allows any replica to handle any request, offloading data persistence to Supabase/PostgreSQL.
+
+```
+
