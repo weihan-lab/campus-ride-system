@@ -464,30 +464,7 @@ Q18: Why does TCP use a 3-way handshake before data exchange? What would happen 
 ​Essential for JWT Flow: In a distributed system, a JWT (JSON Web Token) acts as the "identity card" for the user. If this token is sent over plain HTTP, anyone sniffing the network (Man-in-the-Middle) can steal the token and impersonate the user. TLS ensures that the JWT—and the sensitive data inside it—remains encrypted and tamper-proof during transmission, which is non-negotiable for secure authentication.
 
 ```
-## 🏗️ 5. Kubernetes Manifest Files
-The production-grade Kubernetes orchestration infrastructure is completely declared within the `/k8s` folder. The components cooperate to maintain microservice availability, declare isolation boundaries, and automate scalability under stress:
 
-| Manifest File | Target API Resources | Operational Description & Distributed Role |
-| :--- | :--- | :--- |
-| **`configmap.yaml`** | `v1/ConfigMap` | Centralizes non-sensitive global environment variables (`NEXT_PUBLIC_API_URL`, `NODE_ENV`). Allows runtime configuration updates decoupling from container images. |
-| **`secret.yaml`** | `v1/Secret` | Encrypts and injects sensitive production credentials (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `DATABASE_URL`) via base64 encoding to maintain system perimeter security. |
-| **`postgres.yaml`** | `apps/v1/Deployment`<br>`v1/Service` | Deploys a dedicated SQL database pod tied to an internal `ClusterIP` service. Ensures only the application runtime layer can tap data nodes. |
-| **`backend.yaml`** | `apps/v1/Deployment`<br>`v1/Service` | Ordinates high-availability FastAPI pod replicas (min 2). Configures explicit `livenessProbe` and `readinessProbe` paths on `/health` to execute systemic self-healing. |
-| **`frontend.yaml`** | `apps/v1/Deployment`<br>`v1/Service` | Exposes the Next.js frontend pod endpoints via standard internal service layers, ensuring uniform cluster-wide availability tracking. |
-| **`ingress.yaml`** | `networking.k8s.io/v1/Ingress` | Acts as the core Layer 7 reverse proxy/load balancer. Strips incoming traffic to route edge `/` paths to the UI and `/api/v1` traffic cleanly to backend routing clusters. |
-| **`hpa.yaml`** | `autoscaling/v1/HorizontalPodAutoscaler` | Enforces automated runtime infrastructure scaling. Monitors real-time pod metrics to scale API workers from 2 to 10 pods when CPU load scales past 70%. |
-
----
-
-## 🔬 6. Wireshark Filter Reference Table
-Deep packet inspection (DPI) and explicit packet auditing are executed through network analysis interfaces to track active states across the OSI protocol layers. The following telemetry filters were established to run system tracing:
-
-| Wireshark Display Filter | Relevant OSI Layer | Captured Intercept Scope & Distributed System Context |
-| :--- | :--- | :--- |
-| **`tcp.port == 8000`** | Layer 4 (Transport) | Isolates all low-level ingress/egress raw TCP streams hitting our FastAPI backend. Used to diagnose sequence verification, timing bounds, and port maps. |
-| **`http.request.method == "POST"`** | Layer 7 (Application) | Traps inbound student/driver registration and login payloads. Validates how objects are formatted and parsed under Layer 6 JSON text serialization. |
-| **`tls.handshake.type == 1`** | Layer 7 (Application) / Security | Isolates standard TLS `Client Hello` payloads. Verifies that authorization traffic out to Supabase BaaS or Railway clouds is strictly encrypted and safe from MITM eavesdropping. |
-| **`ip.addr == 127.0.0.1`** | Layer 3 (Network) | Evaluates internal loopback node-to-node packets. Used to capture TCP 3-way handshakes, 4-way connection closes, and structural timing delays. |
 ## Part 7: Load Testing & Horizontal Scaling
 
 Evidence:
