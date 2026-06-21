@@ -22,7 +22,7 @@ SQLALCHEMY_DATABASE_URL = os.getenv(
 #     echo=False,
 #     future=True
 # )
-
+engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
 # Async Session Factory
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
