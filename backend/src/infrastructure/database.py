@@ -3,25 +3,25 @@ from sqlalchemy.ext.declarative import declarative_base
 import os
 
 # Connection string using asyncpg driver
-# HOST = "localhost"
-# PORT = "5432"
-# USER = "postgres"
-# PASSWORD = "123"
-# DATABASE = "campus"
+HOST = os.env["HOST"] #"localhost"
+PORT = os.env["PORT"] #"5432"
+USER = os.env["USER"] 
+PASSWORD = os.env["PASSWORD"]
+DATABASE = os.env["DATABASE"]
 
-# # Note the change to +asyncpg
-# SQLALCHEMY_DATABASE_URL = os.getenv(
-#     "DATABASE_URL", 
-#     f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
-# )
-
-SQLALCHEMY_DATABASE_URL = 'postgresql+asyncpg://postgres:Campusride%402626@db:5432/postgres'
-# Create Async Engine
-engine = create_async_engine(
-    SQLALCHEMY_DATABASE_URL,
-    echo=False,
-    future=True
+# Note the change to +asyncpg
+SQLALCHEMY_DATABASE_URL = os.getenv(
+    "DATABASE_URL", 
+    f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 )
+
+# SQLALCHEMY_DATABASE_URL = 'postgresql+asyncpg://postgres:Campusride%402626@db:5432/postgres'
+# # Create Async Engine
+# engine = create_async_engine(
+#     SQLALCHEMY_DATABASE_URL,
+#     echo=False,
+#     future=True
+# )
 
 # Async Session Factory
 AsyncSessionLocal = async_sessionmaker(
