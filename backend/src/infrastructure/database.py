@@ -3,11 +3,11 @@ from sqlalchemy.ext.declarative import declarative_base
 import os
 
 # Connection string using asyncpg driver
-HOST = os.env["HOST"] #"localhost"
-PORT = os.env["PORT"] #"5432"
-USER = os.env["USER"] 
-PASSWORD = os.env["PASSWORD"]
-DATABASE = os.env["DATABASE"]
+HOST = os.getenv("HOST", "localhost")
+PORT = os.getenv("PORT", "5432")
+USER = os.getenv("USER")
+PASSWORD = os.getenv("PASSWORD")
+DATABASE = os.getenv("DATABASE")
 
 # Note the change to +asyncpg
 SQLALCHEMY_DATABASE_URL = os.getenv(
